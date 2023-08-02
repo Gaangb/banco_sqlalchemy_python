@@ -1,8 +1,8 @@
 import sqlalchemy
 
-from sqlalchemy.orm import declarative_base
+from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column
+from sqlalchemy import Column, create_engine, inspect
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
@@ -35,7 +35,43 @@ class Address(Base):
     user = relationship("User", back_populates="address")
 
     def __repr__(self):
-        return f"Address(id={self.id}, email={self.email_address})"
+        return f"Address(id={self.id}, email_address={self.email_address})"
 
 
 print(User.__tablename__)
+
+# Conexao com o banco de dados
+engine = create_engine("sqlite://")
+
+# Criando as classes como tabelas no banco de dados
+Base.metadata.create_all(engine)
+
+# verifica o squema do banco de dados
+insp = inspect(engine)
+print(insp.has_table("user_account"))
+
+print(insp.get_table_names())
+print(insp.default_schema_name)
+
+with Session(engine) as session:
+    gael = User(
+        name='Gael',
+        fullname='Angelo Gabriel',
+        address=[Address(email_address='gaeltec@email.com')]
+    )
+
+    izzana = User(
+        name='Izzana',
+        fullname='Izzana Barbosa',
+        address=[Address(email_address='izzaprogramer@email.com'),
+                 Address(email_address='zaza@email.com')]
+    )
+
+    joao = User(
+        name='joao',
+        fullname='Joao Gomes'
+    )
+
+    # Enviar para o Banco
+    session.add_all([gael, izzana, joao])
+    session.commit()
