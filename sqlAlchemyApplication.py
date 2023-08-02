@@ -2,7 +2,7 @@ import sqlalchemy
 
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, create_engine, inspect, select
+from sqlalchemy import Column, create_engine, inspect, select, func
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
@@ -85,3 +85,22 @@ stmt_address = select(Address).where(Address.user_id.in_([2]))
 print("\nRecuperando os endereços de email do segundo objeto")
 for address in session.scalars(stmt_address):
     print(address)
+
+stmt_order = select(User).order_by(User.fullname.asc())
+
+print("\nRecuperando info de maneira ordenada")
+for result in session.scalars(stmt_order):
+    print(result)
+
+print("\nRecuperando usuarios que possuem email registrado")
+stmt_join = select(User.fullname, Address.email_address).join_from(Address, User)
+
+connection = engine.connect() # faz a conexão com o banco
+results = connection.execute(stmt_join).fetchall() # retorna tudo
+for result in results:
+    print(result)
+
+print("\nContando a quantidade de usuarios registrados")
+stmt_count = select(func.count('*')).select_from(User)
+for result in session.scalars(stmt_count):
+    print(result)
