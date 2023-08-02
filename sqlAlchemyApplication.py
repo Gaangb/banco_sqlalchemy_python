@@ -2,7 +2,7 @@ import sqlalchemy
 
 from sqlalchemy.orm import declarative_base, Session
 from sqlalchemy.orm import relationship
-from sqlalchemy import Column, create_engine, inspect
+from sqlalchemy import Column, create_engine, inspect, select
 from sqlalchemy import Integer
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
@@ -75,3 +75,13 @@ with Session(engine) as session:
     # Enviar para o Banco
     session.add_all([gael, izzana, joao])
     session.commit()
+
+stmt = select(User).where(User.name.in_(['Gael'])) # para acessar o dado é necessario usar o for para percorrer
+print("Recuperando usuários a partir de condição de filtragem")
+for user in session.scalars(stmt):
+    print(user)
+
+stmt_address = select(Address).where(Address.user_id.in_([2]))
+print("\nRecuperando os endereços de email do segundo objeto")
+for address in session.scalars(stmt_address):
+    print(address)
